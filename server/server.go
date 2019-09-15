@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/meatballhat/negroni-logrus"
+	ngLogger "github.com/meatballhat/negroni-logrus"
 	"github.com/urfave/negroni"
 
 	"github.com/dnguy078/go-sender/endpoints"
@@ -25,17 +25,16 @@ type ServerConfig struct {
 }
 
 func (s *Server) initializeRoutes() {
-	db := marketdb.NewMarketDB()
-	createProduceEndpoint := endpoints.NewCreateProduce(db)
+	ee := endpoints.NewEmailer()
 
-	s.router.HandleFunc("/email", createProduceEndpoint.CreateProduce).Methods("POST")
+	s.router.HandleFunc("/email", ee.Email).Methods("POST")
 }
 
-// func (s *Server) initializeMiddleware() {
-// 	s.middleware.Use(negronilogrus.NewMiddleware())
+func (s *Server) initializeMiddleware() {
+	s.middleware.Use(ngLogger.NewMiddleware())
 
-// 	s.middleware.UseHandler(s.router)
-// }
+	s.middleware.UseHandler(s.router)
+}
 
 func New(cfg ServerConfig) *Server {
 	s := &Server{
@@ -46,7 +45,7 @@ func New(cfg ServerConfig) *Server {
 	}
 
 	s.initializeRoutes()
-	// s.initializeMiddleware()
+	s.initializeMiddleware()
 
 	return s
 }

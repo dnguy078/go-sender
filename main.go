@@ -7,9 +7,12 @@ import (
 )
 
 func main() {
-	server := server.New()
-	err := server.Start()
-	if err != nil {
+	cfg := server.ServerConfig{
+		Port: 4001,
+	}
+
+	server := server.New(cfg)
+	if err := server.Start(); err != nil {
 		fmt.Printf("unable to start up %v", err)
 	}
 }
