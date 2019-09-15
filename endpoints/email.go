@@ -2,30 +2,38 @@ package endpoints
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
-type Emailer struct {
+type EmailHandler struct {
+	d dispatcher
+}
+
+type dispatcher interface {
+	Dispatch() error
 }
 
 type EmailRequest struct {
 	ToEmail string `json:"email"`
 }
 
-func NewEmailer() *Emailer {
-	fmt.Println("hello")
-	return &Emailer{}
+func NewEmailerHandler(dispatcher dispatcher) *EmailHandler {
+	return &EmailHandler{
+		d: dispatcher,
+	}
 }
 
-func (e *Emailer) Email(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hello world")
+func (e *EmailHandler) Email(w http.ResponseWriter, r *http.Request) {
 	req := &EmailRequest{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println(req)
 
-	w.WriteHeader(http.StatusOK)
+	if err := e.d.Dispatch(); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("error"))
+		return
+	}
+
 }

@@ -1,6 +1,8 @@
 package adapter
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -16,7 +18,12 @@ func NewSendGridClient() *SendGridClient {
 	}
 }
 
+func (sg *SendGridClient) Name() string {
+	return "sendgrid"
+}
+
 // Email performs a http request to send emails through SG
 func (sgClient *SendGridClient) Email() error {
-	return nil
+	fmt.Println("calliing from sg")
+	return errors.New("something")
 }

@@ -5,10 +5,11 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	ngLogger "github.com/meatballhat/negroni-logrus"
 	"github.com/urfave/negroni"
 
+	"github.com/dnguy078/go-sender/adapter"
 	"github.com/dnguy078/go-sender/endpoints"
+	"github.com/dnguy078/go-sender/services"
 )
 
 type Server struct {
@@ -25,13 +26,18 @@ type ServerConfig struct {
 }
 
 func (s *Server) initializeRoutes() {
-	ee := endpoints.NewEmailer()
+	sgClient := adapter.NewSendGridClient()
+	mgClient := adapter.NewMailgunClient()
+
+	emailDispatcher := services.NewDispatcher("email", sgClient, mgClient)
+
+	ee := endpoints.NewEmailerHandler(emailDispatcher)
 
 	s.router.HandleFunc("/email", ee.Email).Methods("POST")
 }
 
 func (s *Server) initializeMiddleware() {
-	s.middleware.Use(ngLogger.NewMiddleware())
+	// s.middleware.Use(ngLogger.NewMiddleware())
 
 	s.middleware.UseHandler(s.router)
 }
