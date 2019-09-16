@@ -2,8 +2,10 @@ package server
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 
+	"github.com/afex/hystrix-go/hystrix"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 
@@ -59,6 +61,12 @@ func New(cfg ServerConfig) *Server {
 func (s *Server) Start() error {
 	addr := fmt.Sprintf("%s:%d", s.host, s.port)
 	s.httpServer = &http.Server{Addr: addr, Handler: s.middleware}
+
+	// start hystrix metrics server
+	// separate into another function and handle error
+	hystrixStreamHandler := hystrix.NewStreamHandler()
+	hystrixStreamHandler.Start()
+	go http.ListenAndServe(net.JoinHostPort("", "81"), hystrixStreamHandler)
 
 	fmt.Printf("SenderAPI listening on %s.....\n", addr)
 	if err := s.httpServer.ListenAndServe(); err != nil {

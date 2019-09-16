@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/dnguy078/go-sender/config"
 	"github.com/dnguy078/go-sender/server"
 )
 
@@ -10,6 +12,11 @@ func main() {
 	cfg := server.ServerConfig{
 		Port: 4001,
 	}
+	cfgs, err := config.NewConfig()
+	if err != nil {
+		log.Fatal("err", err)
+	}
+	fmt.Println("configs", cfgs)
 
 	server := server.New(cfg)
 	if err := server.Start(); err != nil {

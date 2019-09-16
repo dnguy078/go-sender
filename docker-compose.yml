@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  go-sender:
+    build: .
+    command: go run main.go
+    ports:
+      - "4001:4001"
+      - "81:81"
+    environment:
+    - SENDER_SENDGRID_KEY=replaceme
+    - SENDER_MAILGUN_KEY=replaceme
+    - SENDER_API_PORT=4001
+    
+  hystrixdashboard:
+    image: kennedyoliveira/hystrix-dashboard
+    links:
+    - go-sender
+    ports:
+    - "7979:7979"
