@@ -11,6 +11,7 @@ services:
       - SENDER_SENDGRID_KEY=replaceme
       - SENDER_MAILGUN_KEY=replaceme
       - SENDER_API_PORT=4001
+      - SENDER_SPARKPORT_KEY=replaceme
     
   hystrixdashboard:
     image: kennedyoliveira/hystrix-dashboard

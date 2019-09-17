@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"errors"
 	"log"
 	"net/http"
 )
@@ -10,7 +11,6 @@ type MailgunClient struct {
 	HTTPClient *http.Client
 }
 
-// stub
 // curl -s --user 'api:YOUR_API_KEY' \
 // https://api.mailgun.net/v3/YOUR_DOMAIN_NAME/messages \
 // -F from='Excited User <mailgun@YOUR_DOMAIN_NAME>' \
@@ -38,6 +38,6 @@ func (mg *MailgunClient) Type() string {
 
 // Email performs a http request to send emails through MG
 func (mg *MailgunClient) Email() error {
-	log.Println("this is a stub")
-	return nil
+	log.Println("stubbing mail gun is down")
+	return errors.New("mailgun is down")
 }
