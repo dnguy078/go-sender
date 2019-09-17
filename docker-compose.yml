@@ -8,10 +8,10 @@ services:
       - "4001:4001"
       - "81:81"
     environment:
-      - SENDER_SENDGRID_KEY=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
+      - SENDER_SENDGRID_KEY=replaceme
       - SENDER_MAILGUN_KEY=replaceme
       - SENDER_API_PORT=4001
-      - SENDER_SPARKPORT_KEY=6c9a591b04c1ee4202ac8b5c16e7defdde8870fd
+      - SENDER_SPARKPORT_KEY=replaceme
     
   hystrixdashboard:
     image: kennedyoliveira/hystrix-dashboard
