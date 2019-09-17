@@ -29,7 +29,7 @@ func (s *Server) initializeRoutes(cfg config.Config) {
 	sgClient := adapter.NewSendGridClient(cfg.SendGridAPIKey)
 	mgClient := adapter.NewMailgunClient()
 
-	emailDispatcher := services.NewDispatcher("email", sgClient, mgClient)
+	emailDispatcher := services.NewDispatcher("email", mgClient, sgClient)
 
 	ee := endpoints.NewEmailerHandler(emailDispatcher)
 
