@@ -4,7 +4,7 @@ go-sender is an http service that sends basic emails through various email provi
 Failover logic is using hystrix circuit breakers. A hystrix dashboard is provided on http://localhost:7979/hystrix-dashboard/. Must provide configure a stream (http://go-sender:81/hystrix.stream)
 
 WIP: 
-1. need to set up properly set up request
+1. need to route request payload
 2. additional unit and integration testing
 
 ## Running locally
