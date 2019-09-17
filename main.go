@@ -1,15 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
+	"github.com/dnguy078/go-sender/config"
 	"github.com/dnguy078/go-sender/server"
 )
 
 func main() {
-	server := server.New()
-	err := server.Start()
+	cfg, err := config.NewConfig()
 	if err != nil {
-		fmt.Printf("unable to start up %v", err)
+		log.Fatal("err", err)
+	}
+
+	server := server.New(cfg)
+	if err := server.Start(); err != nil {
+		log.Fatalf("unable to start http server: %v", err)
 	}
 }
