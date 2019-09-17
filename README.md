@@ -24,7 +24,7 @@ Integration test
 	{
         "toEmail": "someemail@email.com",
         "fromEmail": "fromemail@email.com",
-        "Subject": "somesubject@email.com",
-        "Text": "sometext"
+        "subject": "somesubject@email.com",
+        "text": "sometext"
 	}
 	```
