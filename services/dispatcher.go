@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/afex/hystrix-go/hystrix"
 )
 
@@ -22,7 +24,16 @@ func NewDispatcher(name string, primarySender, fallbackSender Emailer) *Dispatch
 	}
 }
 
+func (d *Dispatcher) SetPrimary(primarySender Emailer) {
+	d.primarySender = primarySender
+}
+
+func (d *Dispatcher) SetFallback(fallbackSender Emailer) {
+	d.fallbackSender = fallbackSender
+}
+
 func (d *Dispatcher) Dispatch() error {
+	fmt.Println("entered dispatcher")
 	hystrix.Go(d.name, func() error {
 		return d.primarySender.Email()
 	}, func(err error) error {

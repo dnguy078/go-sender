@@ -7,9 +7,10 @@ import (
 )
 
 type Config struct {
+	SenderAPIPort int `envconfig:"API_PORT"`
+
 	SendGridAPIKey string `envconfig:"SENDGRID_KEY"`
 	MailGunAPIKey  string `envconfig:"MAILGUN_KEY"`
-	SenderAPIPort  int    `envconfig:"API_PORT"`
 }
 
 func NewConfig() (Config, error) {

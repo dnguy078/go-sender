@@ -1,16 +1,16 @@
 FROM golang:1.12
+WORKDIR /appdir
 
-ENV GO111MODULE=on
-
-WORKDIR /app
-
-COPY . .
-
+# Fetch dependencies
+COPY go.mod .
 RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
+# # Build
+COPY . .
+RUN CGO_ENABLED=0 go build
+RUN pwd && ls -lah
 
-# todo: copy binary into a scratch image instead
+# todo move to alpine image final image
 EXPOSE 4001 81
 
-CMD ["./go-sender"]
+CMD ["./appdir/go-sender"]

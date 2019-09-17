@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -37,6 +37,7 @@ func (mg *MailgunClient) Name() string {
 
 // Email performs a http request to send emails through MG
 func (mg *MailgunClient) Email() error {
-	fmt.Println("calliing from mgjsdlkfjsdlkfjsdlkfjsdlkfjsdlkfj ")
+	log.Println("mail gun called")
+
 	return nil
 }
