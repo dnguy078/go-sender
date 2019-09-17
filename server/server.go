@@ -28,7 +28,7 @@ type ServerConfig struct {
 }
 
 func (s *Server) initializeRoutes() {
-	sgClient := adapter.NewSendGridClient()
+	sgClient := adapter.NewSendGridClient("somsdfklj", "lksdfjslkdfj")
 	mgClient := adapter.NewMailgunClient()
 
 	emailDispatcher := services.NewDispatcher("email", sgClient, mgClient)
@@ -66,7 +66,7 @@ func (s *Server) Start() error {
 	// separate into another function and handle error
 	hystrixStreamHandler := hystrix.NewStreamHandler()
 	hystrixStreamHandler.Start()
-	go http.ListenAndServe(net.JoinHostPort("", "81"), hystrixStreamHandler)
+	go http.ListenAndServe(net.JoinHostPort("localhost", "81"), hystrixStreamHandler)
 
 	fmt.Printf("SenderAPI listening on %s.....\n", addr)
 	if err := s.httpServer.ListenAndServe(); err != nil {

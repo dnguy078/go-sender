@@ -11,6 +11,6 @@ RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 
 # todo: copy binary into a scratch image instead
-EXPOSE 4001
+EXPOSE 4001 81
 
 CMD ["./go-sender"]
