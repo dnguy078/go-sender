@@ -22,7 +22,7 @@ func NewSendGridClient(apiKey string) *SendGridClient {
 	}
 }
 
-func (sg *SendGridClient) Name() string {
+func (sg *SendGridClient) Type() string {
 	return "sendgrid"
 }
 

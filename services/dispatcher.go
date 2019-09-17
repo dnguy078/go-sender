@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/afex/hystrix-go/hystrix"
 )
 
@@ -14,6 +12,7 @@ type Dispatcher struct {
 
 type Emailer interface {
 	Email() error
+	Type() string
 }
 
 func NewDispatcher(name string, primarySender, fallbackSender Emailer) *Dispatcher {
@@ -33,7 +32,6 @@ func (d *Dispatcher) SetFallback(fallbackSender Emailer) {
 }
 
 func (d *Dispatcher) Dispatch() error {
-	fmt.Println("entered dispatcher")
 	hystrix.Go(d.name, func() error {
 		return d.primarySender.Email()
 	}, func(err error) error {

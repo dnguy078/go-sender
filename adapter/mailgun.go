@@ -31,7 +31,7 @@ func NewMailgunClient() *MailgunClient {
 	}
 }
 
-func (mg *MailgunClient) Name() string {
+func (mg *MailgunClient) Type() string {
 	return "mailgun"
 }
 
