@@ -30,13 +30,12 @@ func (e *EmailHandler) Email(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Printf("request %+v", req)
 
 	if err := e.d.Dispatch(); err != nil {
-		log.Println("dispatch error", err)
+		// TODO replace log with logrus and set log appropriate log level
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("error"))
+		w.Write([]byte("Service unavailable"))
 		return
 	}
-	log.Println("successful")
 }
