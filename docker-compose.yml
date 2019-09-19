@@ -12,10 +12,27 @@ services:
       - SENDER_MAILGUN_KEY=replaceme
       - SENDER_API_PORT=4001
       - SENDER_SPARKPOST_KEY=replaceme
+    depends_on: 
+      - rabbitmq
     
-  hystrixdashboard:
-    image: kennedyoliveira/hystrix-dashboard
-    links:
-    - go-sender
+  rabbitmq:
+    image: "rabbitmq:3.6.9"
+    hostname: "rabbitmq"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    command: sh -c "rabbitmq-plugins enable rabbitmq_management; rabbitmq-server"
     ports:
-    - "7979:7979"
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./scripts/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./scripts/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - "rabbitdata:/var/lib/rabbitmq:rw"
+
+volumes:
+  rabbitdata:
+    driver: local
+

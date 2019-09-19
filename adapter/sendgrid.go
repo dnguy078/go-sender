@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/sendgrid/sendgrid-go"
+	"github.com/dnguy078/go-sender/request"
+
+	sendgrid "github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
@@ -27,15 +29,9 @@ func (sg *SendGridClient) Type() string {
 }
 
 // Email performs a http request to send emails through SG
-func (sgClient *SendGridClient) Email() error {
-	from := mail.NewEmail("Example User", "test@example.com")
-	subject := "Sending with Twilio SendGrid is Fun"
-	to := mail.NewEmail("Example User", "dnguy078@ucr.edu")
-	plainTextContent := "and easy to do anywhere, even with Go"
-	htmlContent := "<strong>and easy to do anywhere, even with Go</strong>"
-	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
-
-	response, err := sgClient.client.Send(message)
+func (sgClient *SendGridClient) Email(payload request.EmailRequest) error {
+	mail := buildMessage(payload)
+	response, err := sgClient.client.Send(mail)
 	if err != nil {
 		return err
 	}
@@ -45,4 +41,15 @@ func (sgClient *SendGridClient) Email() error {
 	}
 
 	return nil
+}
+
+func buildMessage(payload request.EmailRequest) *mail.SGMailV3 {
+	from := mail.NewEmail(payload.FromEmail, payload.FromEmail)
+	subject := payload.Subject
+	to := mail.NewEmail(payload.ToEmail, payload.ToEmail)
+	plainTextContent := payload.Text
+	//not sure this is needed
+	htmlContent := "<strong>and easy to do anywhere, even with Go</strong>"
+
+	return mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 }

@@ -3,6 +3,8 @@ package services
 import (
 	"log"
 
+	"github.com/dnguy078/go-sender/request"
+
 	"github.com/afex/hystrix-go/hystrix"
 )
 
@@ -13,7 +15,7 @@ type Dispatcher struct {
 }
 
 type Emailer interface {
-	Email() error
+	Email(request.EmailRequest) error
 	Type() string
 }
 
@@ -41,14 +43,14 @@ func (d *Dispatcher) SetFallback(fallbackSender Emailer) {
 	d.fallbackSender = fallbackSender
 }
 
-func (d *Dispatcher) Dispatch() error {
+func (d *Dispatcher) Dispatch(payload request.EmailRequest) error {
 	hystrix.Go(d.name, func() error {
 		log.Printf("sending email from %s", d.primarySender.Type())
-		return d.primarySender.Email()
+		return d.primarySender.Email(payload)
 	}, func(err error) error {
 		// fall back to fallback sender if primary fails
 		log.Printf("sending email from %s", d.fallbackSender.Type())
-		return d.fallbackSender.Email()
+		return d.fallbackSender.Email(payload)
 	})
 
 	return nil

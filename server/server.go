@@ -27,9 +27,9 @@ type Server struct {
 
 func (s *Server) initializeRoutes(cfg config.Config) {
 	sgClient := adapter.NewSendGridClient(cfg.SendGridAPIKey)
-	mgClient := adapter.NewMailgunClient()
+	// mgClient := adapter.NewMailgunClient()
 
-	emailDispatcher := services.NewDispatcher("email", mgClient, sgClient)
+	emailDispatcher := services.NewDispatcher("email", sgClient, sgClient)
 
 	ee := endpoints.NewEmailerHandler(emailDispatcher)
 
