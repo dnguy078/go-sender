@@ -1,10 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/dnguy078/go-sender/config"
-	"github.com/dnguy078/go-sender/server"
+	"github.com/dnguy078/go-sender/daemon"
 )
 
 func main() {
@@ -13,8 +17,18 @@ func main() {
 		log.Fatal("err", err)
 	}
 
-	server := server.New(cfg)
-	if err := server.Start(); err != nil {
+	daemon, err := daemon.New(cfg)
+	if err != nil {
+		log.Fatalf("unable to init daemon: %+v", err)
+	}
+
+	if err := daemon.Start(); err != nil {
 		log.Fatalf("unable to start http server: %v", err)
 	}
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	<-done
+	fmt.Println("cancelling")
 }

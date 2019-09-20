@@ -1,55 +1,101 @@
 package services
 
 import (
-	"log"
+	"fmt"
 
-	"github.com/afex/hystrix-go/hystrix"
+	"github.com/dnguy078/go-sender/request"
+	"github.com/streadway/amqp"
 )
 
 type Dispatcher struct {
-	name           string
-	primarySender  Emailer
-	fallbackSender Emailer
+	name       string
+	jobQueue   chan amqp.Delivery
+	emailer    Emailer
+	fallBackFn FallBackFn
+	quit       chan bool
 }
 
 type Emailer interface {
-	Email() error
+	Email(request.EmailRequest) error
 	Type() string
 }
 
-func NewDispatcher(name string, primarySender, fallbackSender Emailer) *Dispatcher {
-	// todo make configuable
-	hystrix.ConfigureCommand(name, hystrix.CommandConfig{
-		Timeout:                1000,
-		MaxConcurrentRequests:  100,
-		ErrorPercentThreshold:  1,
-		RequestVolumeThreshold: 1,
-	})
+type DispatcherConfigs struct {
+	maxQueueSize int
+	maxWorker    int
+}
+
+type FallBackFn func(request.EmailRequest)
+
+func NewDispatcher(msgs <-chan amqp.Delivery, maxQueueSize int, emailer Emailer, fallbackFn FallBackFn) *Dispatcher {
+	jobQueue := make(chan amqp.Delivery, maxQueueSize)
+
+	go func() {
+		for j := range msgs {
+			jobQueue <- j
+		}
+	}()
 
 	return &Dispatcher{
-		name:           name,
-		primarySender:  primarySender,
-		fallbackSender: fallbackSender,
+		jobQueue:   jobQueue,
+		emailer:    emailer,
+		fallBackFn: fallbackFn,
+		quit:       make(chan bool, 1),
 	}
 }
 
-func (d *Dispatcher) SetPrimary(primarySender Emailer) {
-	d.primarySender = primarySender
+func (d *Dispatcher) SetEmailer(emailer Emailer) {
+	d.emailer = emailer
 }
 
-func (d *Dispatcher) SetFallback(fallbackSender Emailer) {
-	d.fallbackSender = fallbackSender
+func (d *Dispatcher) Start() {
+	fmt.Println("starting dispatcher")
+	for i := 0; i < 100; i++ {
+		worker := &EmailWorker{
+			emailer:      d.emailer,
+			queue:        d.jobQueue,
+			fallBackFunc: d.fallBackFn,
+			quit:         d.quit,
+		}
+		go worker.Work()
+	}
 }
 
-func (d *Dispatcher) Dispatch() error {
-	hystrix.Go(d.name, func() error {
-		log.Printf("sending email from %s", d.primarySender.Type())
-		return d.primarySender.Email()
-	}, func(err error) error {
-		// fall back to fallback sender if primary fails
-		log.Printf("sending email from %s", d.fallbackSender.Type())
-		return d.fallbackSender.Email()
-	})
+type EmailWorker struct {
+	emailer      Emailer
+	queue        chan amqp.Delivery
+	fallBackFunc FallBackFn
+	quit         chan bool
+}
 
-	return nil
+func (w *EmailWorker) Work() {
+	for {
+		select {
+		case payload, ok := <-w.queue:
+			if !ok {
+				return
+			}
+			fmt.Println("entered")
+			req, err := request.Validate(payload.Body)
+			if err != nil {
+				fmt.Printf("%+v", req)
+				payload.Reject(false)
+			}
+			fmt.Printf("%+v", req)
+			fmt.Println(w.emailer.Type())
+
+			if err := w.emailer.Email(req); err != nil {
+				fmt.Println(err)
+				w.fallBackFunc(req)
+			}
+
+			if err := payload.Ack(false); err != nil {
+				// log
+			}
+			fmt.Println("sent")
+
+		case <-w.quit:
+			return
+		}
+	}
 }

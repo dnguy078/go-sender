@@ -1,0 +1,57 @@
+{
+    "rabbit_version": "3.6.5",
+    "users": [
+      {
+        "name": "guest",
+        "password_hash": "o2MJjT8UKSRM7eoLDMWvm4LxqaFvDxd2wLg1KQQQ2jXfG5UE",
+        "hashing_algorithm": "rabbit_password_hashing_sha256",
+        "tags": "administrator"
+      }
+    ],
+    "vhosts": [
+      {
+        "name": "/"
+      }
+    ],
+    "permissions": [
+      {
+        "user": "guest",
+        "vhost": "/",
+        "configure": ".*",
+        "write": ".*",
+        "read": ".*"
+      }
+    ],
+    "parameters": [],
+    "policies": [],
+    "queues": [
+      {
+        "name": "emailer.incoming.queue",
+        "vhost": "/",
+        "durable": true,
+        "auto_delete": false,
+        "arguments": {}
+      }
+    ],
+    "exchanges": [
+      {
+        "name": "emailer.incomingX",
+        "vhost": "/",
+        "type": "direct",
+        "durable": true,
+        "auto_delete": false,
+        "internal": false,
+        "arguments": {}
+      }
+    ],
+    "bindings": [
+      {
+        "source": "emailer.incomingX",
+        "vhost": "/",
+        "destination": "emailer.incoming.queue",
+        "destination_type": "queue",
+        "routing_key": "",
+        "arguments": {}
+      }
+    ]
+  }

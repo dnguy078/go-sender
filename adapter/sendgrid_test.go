@@ -1,28 +1,51 @@
 package adapter
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
-	"github.com/sendgrid/sendgrid-go"
+	"github.com/dnguy078/go-sender/request"
+
+	sendgrid "github.com/sendgrid/sendgrid-go"
 )
 
 func TestSendGridClient_Email(t *testing.T) {
-	type fields struct {
-		client *sendgrid.Client
-	}
 	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
+		name           string
+		fakeRespStatus int
+		fakeRespBody   []byte
+		wantErr        bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:           "success",
+			fakeRespStatus: http.StatusAccepted,
+		},
+		{
+			name:           "bad request",
+			fakeRespStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "sendgrid down",
+			fakeRespStatus: http.StatusInternalServerError,
+			wantErr:        true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(tt.fakeRespStatus)
+			}))
+			defer ts.Close()
+
 			sgClient := &SendGridClient{
-				client: tt.fields.client,
+				client: sendgrid.NewSendClient("testclient"),
 			}
-			if err := sgClient.Email(); (err != nil) != tt.wantErr {
+			sgClient.client.BaseURL = ts.URL
+
+			if err := sgClient.Email(request.EmailRequest{
+				ToEmail: "test",
+			}); (err != nil) != tt.wantErr {
 				t.Errorf("SendGridClient.Email() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

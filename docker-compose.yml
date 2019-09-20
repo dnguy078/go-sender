@@ -4,18 +4,36 @@ services:
   go-sender:
     build: .
     command: go run main.go
-    ports:
-      - "4001:4001"
-      - "81:81"
     environment:
       - SENDER_SENDGRID_KEY=replaceme
       - SENDER_MAILGUN_KEY=replaceme
       - SENDER_API_PORT=4001
       - SENDER_SPARKPOST_KEY=replaceme
+    depends_on:
+      - rabbitmq
     
-  hystrixdashboard:
-    image: kennedyoliveira/hystrix-dashboard
-    links:
-    - go-sender
+  rabbitmq:
+    image: "heidiks/rabbitmq-delayed-message-exchange:3.6-management"
+    hostname: "rabbitmq"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
     ports:
-    - "7979:7979"
+      - "15672:15672"
+      - "5672:5672"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+    volumes:
+      - ./scripts/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ./scripts/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - "rabbitdata:/var/lib/rabbitmq:rw"
+
+volumes:
+  rabbitdata:
+    driver: local
+

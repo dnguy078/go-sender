@@ -11,6 +11,7 @@ type Config struct {
 
 	SendGridAPIKey string `envconfig:"SENDGRID_KEY"`
 	MailGunAPIKey  string `envconfig:"MAILGUN_KEY"`
+	SparkPostKey   string `envconfig:"SPARKPOST_KEY"`
 }
 
 func NewConfig() (Config, error) {
@@ -18,6 +19,7 @@ func NewConfig() (Config, error) {
 	if err := envconfig.Process("sender", &c); err != nil {
 		return c, fmt.Errorf("unable to read env vars, err: %v", err)
 	}
+	fmt.Printf("%+v", c)
 
 	return c, nil
 }
