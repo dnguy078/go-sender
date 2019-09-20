@@ -92,6 +92,7 @@ func (w *EmailWorker) Work() {
 			if err := payload.Ack(false); err != nil {
 				log.Println(err)
 			}
+			log.Printf("email processed by %s\n", w.emailer.Type())
 		case <-w.quit:
 			return
 		}
