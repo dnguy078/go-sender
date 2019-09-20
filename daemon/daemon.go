@@ -2,7 +2,6 @@ package daemon
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/dnguy078/go-sender/adapter"
@@ -14,9 +13,7 @@ import (
 )
 
 type Daemon struct {
-	cfg     config.Config
-	channel *amqp.Channel
-	conn    *amqp.Connection
+	cfg config.Config
 }
 
 func New(cfg config.Config) (*Daemon, error) {
@@ -37,7 +34,6 @@ func (d *Daemon) Start() error {
 	if err != nil {
 		return fmt.Errorf("basic.consume: %v", err)
 	}
-	log.Println("API_KEY:", d.cfg.SendGridAPIKey)
 
 	sgClient := adapter.NewSendGridClient(d.cfg.SendGridAPIKey)
 	// spClient, err := adapter.NewSparkPostClient(d.cfg.SparkPostKey)
@@ -47,7 +43,7 @@ func (d *Daemon) Start() error {
 	fb := &services.FallBack{}
 
 	// primaryDispatcher := services.NewDispatcher(primaryEmailsChan, 10, spClient, fb.PrimaryFallBack)
-	primaryDispatcher := services.NewDispatcher(primaryEmailsChan, 10, sgClient, fb.PrimaryFallBack)
+	primaryDispatcher := services.NewDispatcher(d.cfg, 10, sgClient, fb.PrimaryFallBack)
 	primaryDispatcher.Start()
 
 	return nil
