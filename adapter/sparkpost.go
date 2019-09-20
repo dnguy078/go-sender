@@ -19,8 +19,7 @@ type SparkPostClient struct {
 // NewSparkPostClient returns a new SparkPostClient
 func NewSparkPostClient(apikey string) (*SparkPostClient, error) {
 	var sparky sp.Client
-	fmt.Println("apikey", apikey)
-	err := sparky.Init(&sp.Config{ApiKey: "fced6a2b44ba15eade9539418fc91caab4c6f16d"})
+	err := sparky.Init(&sp.Config{ApiKey: apikey})
 	if err != nil {
 		log.Fatalf("SparkPost client init failed: %s\n", err)
 		return nil, err
