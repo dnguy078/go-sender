@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -16,16 +17,18 @@ type SparkPostClient struct {
 }
 
 // NewSparkPostClient returns a new SparkPostClient
-func NewSparkPostClient(apikey string) *SparkPostClient {
+func NewSparkPostClient(apikey string) (*SparkPostClient, error) {
 	var sparky sp.Client
-	err := sparky.Init(&sp.Config{ApiKey: apikey})
+	fmt.Println("apikey", apikey)
+	err := sparky.Init(&sp.Config{ApiKey: "fced6a2b44ba15eade9539418fc91caab4c6f16d"})
 	if err != nil {
 		log.Fatalf("SparkPost client init failed: %s\n", err)
+		return nil, err
 	}
 
 	return &SparkPostClient{
 		client: sparky,
-	}
+	}, nil
 }
 
 func (spClient *SparkPostClient) Type() string {
@@ -34,11 +37,13 @@ func (spClient *SparkPostClient) Type() string {
 
 // Email performs a http request to send emails through SP
 func (spClient *SparkPostClient) Email(req request.EmailRequest) error {
+	sandbox := true
 	tx := &sp.Transmission{
 		Recipients: []string{req.ToEmail},
+		Options:    &sp.TxOptions{Sandbox: &sandbox},
 		Content: sp.Content{
 			Text:    req.Text,
-			From:    req.FromEmail,
+			From:    "testing@sparkpostbox.com",
 			Subject: req.Subject,
 		},
 	}

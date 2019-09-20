@@ -34,7 +34,10 @@ func TestSparkPostClient_Email(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			spClient := NewSparkPostClient("somekey")
+			spClient, err := NewSparkPostClient("somekey")
+			if err != nil {
+				t.Error(err)
+			}
 			spClient.client.Config.BaseUrl = ts.URL
 
 			req := request.EmailRequest{

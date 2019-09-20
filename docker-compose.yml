@@ -4,31 +4,32 @@ services:
   go-sender:
     build: .
     command: go run main.go
-    ports:
-      - "4001:4001"
-      - "81:81"
     environment:
       - SENDER_SENDGRID_KEY=replaceme
       - SENDER_MAILGUN_KEY=replaceme
       - SENDER_API_PORT=4001
       - SENDER_SPARKPOST_KEY=replaceme
-    depends_on: 
+    depends_on:
       - rabbitmq
     
   rabbitmq:
-    image: "rabbitmq:3.6.9"
+    image: "heidiks/rabbitmq-delayed-message-exchange:3.6-management"
     hostname: "rabbitmq"
     environment:
       RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
       RABBITMQ_DEFAULT_VHOST: "/"
-    command: sh -c "rabbitmq-plugins enable rabbitmq_management; rabbitmq-server"
     ports:
       - "15672:15672"
       - "5672:5672"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
     volumes:
-      - ./scripts/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./scripts/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
       - ./scripts/definitions.json:/etc/rabbitmq/definitions.json:ro
       - "rabbitdata:/var/lib/rabbitmq:rw"
 

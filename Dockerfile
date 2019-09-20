@@ -7,10 +7,7 @@ RUN go mod download
 
 # # Build
 COPY . .
-RUN CGO_ENABLED=0 go build
-RUN pwd && ls -lah
+RUN go build
 
-# todo move to alpine image final image
-EXPOSE 4001 81
-
+# move to alpine image
 CMD ["./appdir/go-sender"]
