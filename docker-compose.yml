@@ -5,10 +5,8 @@ services:
     build: .
     command: go run main.go
     environment:
-      - SENDER_SENDGRID_KEY=replaceme
-      - SENDER_MAILGUN_KEY=replaceme
-      - SENDER_API_PORT=4001
-      - SENDER_SPARKPOST_KEY=replaceme
+      - SENDER_SENDGRID_KEY=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
+      - SENDER_SPARKPOST_KEY=44c74001806047aa12faddd148430be9e571e893
     depends_on:
       - rabbitmq
     

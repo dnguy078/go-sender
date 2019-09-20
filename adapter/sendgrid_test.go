@@ -6,8 +6,6 @@ import (
 	"testing"
 
 	"github.com/dnguy078/go-sender/request"
-
-	sendgrid "github.com/sendgrid/sendgrid-go"
 )
 
 func TestSendGridClient_Email(t *testing.T) {
@@ -39,9 +37,9 @@ func TestSendGridClient_Email(t *testing.T) {
 			defer ts.Close()
 
 			sgClient := &SendGridClient{
-				client: sendgrid.NewSendClient("testclient"),
+				client:  http.DefaultClient,
+				mailURL: ts.URL,
 			}
-			sgClient.client.BaseURL = ts.URL
 
 			if err := sgClient.Email(request.EmailRequest{
 				ToEmail: "test",

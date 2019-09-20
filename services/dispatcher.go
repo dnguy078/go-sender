@@ -1,9 +1,8 @@
 package services
 
 import (
-	"fmt"
+	"log"
 
-	"github.com/dnguy078/go-sender/config"
 	"github.com/dnguy078/go-sender/request"
 	"github.com/streadway/amqp"
 )
@@ -28,12 +27,7 @@ type DispatcherConfigs struct {
 
 type FallBackFn func(request.EmailRequest)
 
-func NewDispatcher(cfg config.Config, maxQueueSize int, emailer Emailer, fallbackFn FallBackFn) *Dispatcher {
-	primaryEmailsChan, err := d.channel.Consume("emailer.incoming.queue", "emailer.incoming.queue", false, false, false, false, nil)
-	if err != nil {
-		return fmt.Errorf("basic.consume: %v", err)
-	}
-
+func NewDispatcher(msgs <-chan amqp.Delivery, maxQueueSize int, emailer Emailer, fallbackFn FallBackFn) *Dispatcher {
 	jobQueue := make(chan amqp.Delivery, maxQueueSize)
 
 	go func() {
@@ -55,7 +49,7 @@ func (d *Dispatcher) SetEmailer(emailer Emailer) {
 }
 
 func (d *Dispatcher) Start() {
-	fmt.Println("starting dispatcher")
+	log.Println("Starting dispatcher - ", d.emailer.Type())
 	for i := 0; i < 100; i++ {
 		worker := &EmailWorker{
 			emailer:      d.emailer,
@@ -83,17 +77,17 @@ func (w *EmailWorker) Work() {
 			}
 			req, err := request.Validate(payload.Body)
 			if err != nil {
-				fmt.Printf("%+v", req)
+				log.Println(err)
 				payload.Reject(false)
 			}
 
 			if err := w.emailer.Email(req); err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				w.fallBackFunc(req)
 			}
 
 			if err := payload.Ack(false); err != nil {
-				// log
+				log.Println(err)
 			}
 		case <-w.quit:
 			return

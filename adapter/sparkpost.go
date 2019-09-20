@@ -2,7 +2,6 @@ package adapter
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -36,6 +35,7 @@ func (spClient *SparkPostClient) Type() string {
 
 // Email performs a http request to send emails through SP
 func (spClient *SparkPostClient) Email(req request.EmailRequest) error {
+	log.Println("Sending from sparkpost")
 	sandbox := true
 	tx := &sp.Transmission{
 		Recipients: []string{req.ToEmail},

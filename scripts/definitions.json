@@ -31,6 +31,22 @@
         "durable": true,
         "auto_delete": false,
         "arguments": {}
+      },
+      {
+        "name": "emailer.retry.queue",
+        "vhost": "/",
+        "durable": true,
+        "auto_delete": false,
+        "arguments": {}
+      },
+      {
+        "name": "emailer.errors.queue",
+        "vhost": "/",
+        "durable": true,
+        "auto_delete": false,
+        "arguments": {
+          "x-message-ttl": 120000
+        }
       }
     ],
     "exchanges": [
@@ -51,6 +67,22 @@
         "destination": "emailer.incoming.queue",
         "destination_type": "queue",
         "routing_key": "",
+        "arguments": {}
+      },
+      {
+        "source": "emailer.incomingX",
+        "vhost": "/",
+        "destination": "emailer.retry.queue",
+        "destination_type": "queue",
+        "routing_key": "retry",
+        "arguments": {}
+      },
+      {
+        "source": "emailer.incomingX",
+        "vhost": "/",
+        "destination": "emailer.errors.queue",
+        "destination_type": "queue",
+        "routing_key": "errors",
         "arguments": {}
       }
     ]

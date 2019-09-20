@@ -3,8 +3,10 @@ package adapter
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/dnguy078/go-sender/request"
@@ -14,15 +16,17 @@ import (
 
 // SendGridClient is a wrapper around SendGrid API
 type SendGridClient struct {
-	client *http.Client
-	apiKey string
+	client  *http.Client
+	apiKey  string
+	mailURL string
 }
 
 // NewSendGridClient return sa new SendGridClient
 func NewSendGridClient(apiKey string) *SendGridClient {
 	return &SendGridClient{
-		client: http.DefaultClient,
-		apiKey: fmt.Sprintf("Bearer %s", apiKey),
+		client:  http.DefaultClient,
+		mailURL: "https://api.sendgrid.com/v3/mail/send",
+		apiKey:  fmt.Sprintf("Bearer %s", apiKey),
 	}
 }
 
@@ -38,7 +42,7 @@ func (sgClient *SendGridClient) Email(payload request.EmailRequest) error {
 		return err
 	}
 
-	req, err := http.NewRequest("POST", "https://api.sendgrid.com/v3/mail/send", bytes.NewBuffer(b))
+	req, err := http.NewRequest("POST", sgClient.mailURL, bytes.NewBuffer(b))
 	if err != nil {
 		return err
 	}
@@ -50,12 +54,19 @@ func (sgClient *SendGridClient) Email(payload request.EmailRequest) error {
 		return err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	// return errors.New("sendgrid is down")
+
+	if resp.StatusCode >= http.StatusInternalServerError {
+		return errors.New("sendgrid is down")
 	}
 
-	fmt.Println(string(body))
+	if resp.StatusCode <= http.StatusOK || resp.StatusCode >= 300 {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		log.Printf("sendgrid errors: %s, status: %d", string(body), resp.StatusCode)
+	}
 
 	return nil
 }

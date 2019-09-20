@@ -1,30 +1,33 @@
 package services
 
 import (
-	"fmt"
+	"encoding/json"
+	"log"
 
 	"github.com/dnguy078/go-sender/request"
-	"github.com/streadway/amqp"
 )
 
 type FallBack struct {
-	ch       amqp.Channel
-	exchange string
-	queue    string
-	headers  amqp.Table
+	Publisher publisher
+}
+
+type publisher interface {
+	Publish(exchange, routingKey string, body []byte, headers map[string]interface{}) error
 }
 
 func (f *FallBack) PrimaryFallBack(email request.EmailRequest) {
-	// msg := amqp.Publishing{
-	// 	DeliveryMode: amqp.Persistent,
-	// 	Timestamp:    time.Now(),
-	// 	ContentType:  "text/plain",
-	// 	Body:         []byte("Go Go AMQP!"),
-	// }
-	// f.ch.Publish()
-	fmt.Println("klsdjflksdjf")
+	log.Println("calling fallback primary")
+	b, err := json.Marshal(email)
+	if err != nil {
+		log.Println(err)
+	}
+	f.Publisher.Publish("emailer.incomingX", "retry", b, nil)
 }
 
 func (f *FallBack) SecondaryFallBack(email request.EmailRequest) {
-
+	b, err := json.Marshal(email)
+	if err != nil {
+		log.Println(err)
+	}
+	f.Publisher.Publish("emailer.incomingX", "errors", b, nil)
 }
