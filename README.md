@@ -1,3 +1,4 @@
+
 # go-sender
 go-sender is an event-based microservice that sends basic emails through various email providers (sendgrid, sparkpost). If one of the services goes down, go-sender will quickly failover to the secondary configuable email provider. It consumes off rabbitmq for email events and hands the event to a pool of email workers that calls out to the apppropriate email provider.
 
@@ -7,20 +8,18 @@ To Run (replace docker-compose.yml with appropriate keys):
   docker-compose build && docker-compose up
   ```
 Unit Test:
-    ```
-    go test ./...
-    ```
+
+    go test ./... -v
 
 Integration test
-    ```
+
     docker-compose build && docker-compose up -d
     go test -tags=integration -sgkey=sgAPIKey -spkey=spAPIKey
-    ```
 
 ## Email Request Event
-	// Users of this service will need to send this email event payload to rabbitmq. `amqp://guest:guest@rabbitmq:5672/` (local development),
-  **
-  Alternatively, for testing purposes, one can submit the payload through the rabbitmq management page (http://localhost:15672/#/) (guest:guest) **
+Users of this service will need to send this email event payload to rabbitmq. `amqp://guest:guest@rabbitmq:5672/` (local development),
+
+Alternatively, for testing purposes, one can submit the payload through the rabbitmq management page (http://localhost:15672/#/) (Username: **guest**, Password: **guest**) **
 
 	```
 	{
