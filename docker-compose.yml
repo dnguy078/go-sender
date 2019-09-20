@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  go-sender:
+    build: .
+    command: go run main.go
+    environment:
+      - SENDER_SENDGRID_KEY=replaceme
+      - SENDER_SPARKPOST_KEY=replaceme
+    depends_on:
+      - rabbitmq
+    
+  rabbitmq:
+    image: "heidiks/rabbitmq-delayed-message-exchange:3.6-management"
+    hostname: "rabbitmq"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+    volumes:
+      - ./scripts/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ./scripts/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - "rabbitdata:/var/lib/rabbitmq:rw"
+
+volumes:
+  rabbitdata:
+    driver: local
+
