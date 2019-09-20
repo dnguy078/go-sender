@@ -20,13 +20,11 @@ type Emailer interface {
 	Type() string
 }
 
-type DispatcherConfigs struct {
-	maxQueueSize int
-	maxWorker    int
-}
-
+// FallBackFn is the fallback function that gets called when email provider returns an error
 type FallBackFn func(request.EmailRequest)
 
+// NewDispatcher consumes from an amqp.Delivery channel and pipes messages to a buffer channel where
+// pool of workers will process the email request
 func NewDispatcher(msgs <-chan amqp.Delivery, maxQueueSize int, emailer Emailer, fallbackFn FallBackFn) *Dispatcher {
 	jobQueue := make(chan amqp.Delivery, maxQueueSize)
 
@@ -44,10 +42,12 @@ func NewDispatcher(msgs <-chan amqp.Delivery, maxQueueSize int, emailer Emailer,
 	}
 }
 
+// SetEmailer lets  you change the emailer
 func (d *Dispatcher) SetEmailer(emailer Emailer) {
 	d.emailer = emailer
 }
 
+// Start spins up EmailWorkers
 func (d *Dispatcher) Start() {
 	log.Println("Starting dispatcher - ", d.emailer.Type())
 	for i := 0; i < 100; i++ {
@@ -61,6 +61,7 @@ func (d *Dispatcher) Start() {
 	}
 }
 
+// EmailWorker sends emails
 type EmailWorker struct {
 	emailer      Emailer
 	queue        chan amqp.Delivery
@@ -68,6 +69,7 @@ type EmailWorker struct {
 	quit         chan bool
 }
 
+// Work consumes off a buffer queue and sends emails until the queue is closed or a quit signal is received
 func (w *EmailWorker) Work() {
 	for {
 		select {
@@ -84,6 +86,7 @@ func (w *EmailWorker) Work() {
 			if err := w.emailer.Email(req); err != nil {
 				log.Println(err)
 				w.fallBackFunc(req)
+				payload.Reject(false)
 			}
 
 			if err := payload.Ack(false); err != nil {

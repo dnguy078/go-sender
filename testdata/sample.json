@@ -1,6 +1,6 @@
 {
-	"toEmail": "dnguy078@ucr.edu",
-	"fromEmail": "dnguy078@ucr.edu",
+	"toEmail": "test@gmail.com",
+	"fromEmail": "test@gmail.com",
 	"subject": "hello",
 	"text": "hello"
 }

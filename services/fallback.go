@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/dnguy078/go-sender/request"
 )
@@ -16,18 +15,25 @@ type publisher interface {
 }
 
 func (f *FallBack) PrimaryFallBack(email request.EmailRequest) {
-	log.Println("calling fallback primary")
-	b, err := json.Marshal(email)
+	b, err := generateRabbitPayload(email)
 	if err != nil {
-		log.Println(err)
+		return
 	}
 	f.Publisher.Publish("emailer.incomingX", "retry", b, nil)
 }
 
 func (f *FallBack) SecondaryFallBack(email request.EmailRequest) {
-	b, err := json.Marshal(email)
+	b, err := generateRabbitPayload(email)
 	if err != nil {
-		log.Println(err)
+		return
 	}
 	f.Publisher.Publish("emailer.incomingX", "errors", b, nil)
+}
+
+func generateRabbitPayload(email request.EmailRequest) ([]byte, error) {
+	b, err := json.Marshal(email)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
 }

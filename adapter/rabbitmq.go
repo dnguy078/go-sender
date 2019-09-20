@@ -10,11 +10,13 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func newRabbitConnection(user, pass, addr string) (*amqp.Connection, error) {
+func newRabbitConnection(user, pass, addr string, port int) (*amqp.Connection, error) {
 	dialConfig := amqp.Config{
 		Dial: amqp.DefaultDial(1 * time.Minute),
 	}
-	conn, err := amqp.DialConfig("amqp://guest:guest@rabbitmq:5672/", dialConfig)
+
+	url := fmt.Sprintf("amqp://%s:%s@%s:%d/", user, pass, addr, port)
+	conn, err := amqp.DialConfig(url, dialConfig)
 	if err != nil {
 		return nil, fmt.Errorf("connection.open: %s", err)
 	}
@@ -28,8 +30,8 @@ type RabbitClient struct {
 }
 
 // NewRabbitClient returns a rabbitclient
-func NewRabbitClient(user, pass, addr string) (*RabbitClient, error) {
-	conn, err := newRabbitConnection(user, pass, addr)
+func NewRabbitClient(user, pass, addr string, port int) (*RabbitClient, error) {
+	conn, err := newRabbitConnection(user, pass, addr, port)
 	if err != nil {
 		return nil, err
 	}

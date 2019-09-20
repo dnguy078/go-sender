@@ -5,8 +5,12 @@ services:
     build: .
     command: go run main.go
     environment:
-      - SENDER_SENDGRID_KEY=replaceme
-      - SENDER_SPARKPOST_KEY=replaceme
+      - SENDER_SENDGRID_KEY=************REPLACEME!!!
+      - SENDER_SPARKPOST_KEY=************REPLACEME!!!!
+      - SENDER_RABBIT_USERNAME=guest
+      - SENDER_RABBIT_PASSWORD=guest
+      - SENDER_RABBIT_ADDR=rabbitmq
+      - SENDER_RABBIT_PORT=5672
     depends_on:
       - rabbitmq
     

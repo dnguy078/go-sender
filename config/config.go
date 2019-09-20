@@ -11,6 +11,8 @@ type Config struct {
 	SparkPostKey   string `envconfig:"SPARKPOST_KEY"`
 	RabbitUsername string `envconfig:"RABBIT_USERNAME"`
 	RabbitPassword string `envconfig:"RABBIT_PASSWORD"`
+	RabbitAddr     string `envconfig:"RABBIT_ADDR"`
+	RabbitPort     int    `envconfig:"RABBIT_PORT"`
 }
 
 func NewConfig() (Config, error) {

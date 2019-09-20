@@ -34,7 +34,12 @@ func (d *Daemon) Start() error {
 		return err
 	}
 
-	publisherClient, err := adapter.NewRabbitClient("guest", "guest", "rabbitmq:5672")
+	publisherClient, err := adapter.NewRabbitClient(
+		d.cfg.RabbitUsername,
+		d.cfg.RabbitPassword,
+		d.cfg.RabbitAddr,
+		d.cfg.RabbitPort,
+	)
 	if err != nil {
 		return err
 	}
@@ -43,7 +48,12 @@ func (d *Daemon) Start() error {
 		Publisher: publisherClient,
 	}
 
-	consumerClient, err := adapter.NewRabbitClient("guest", "guest", "rabbitmq:5672")
+	consumerClient, err := adapter.NewRabbitClient(
+		d.cfg.RabbitUsername,
+		d.cfg.RabbitPassword,
+		d.cfg.RabbitAddr,
+		d.cfg.RabbitPort,
+	)
 	if err != nil {
 		return err
 	}
