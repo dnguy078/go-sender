@@ -43,7 +43,6 @@ An event base architecture for sending out email has multiple advantages in term
 This email system has its limitations in that end users would know necessarily know if their request failed/succeeded. I feel like in most email systems, emails are sent asynchronously. Given time restrictions, it would like to:
 
 1. Fix logging in the application, would remove the standard logger with something more verbose
-2. Remove some hard coded values
 3. Basic request validation
 4. Metrics around status codes/response times, errors, and rabbitmq queue size
 
