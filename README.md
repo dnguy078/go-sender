@@ -40,7 +40,7 @@ This email system consumes from two queues (`emailer.incoming.queue`) and `email
 
 An event base architecture for sending out email has multiple advantages in terms of scale and reliability. Events could be easily be replayed in case of downtime from external APIs. Initially I had written this service as an HTTP API with a circuit breaker than fell back to a secondary email provider. While this was fine, it also poses the issue if both email providers were down. Essentially we'd have to store those failed events to be retried somewhere. Storing these request in RabbitMQ or another event store allows us to replay events without much difficulty.
 
-This email system has its limitations in that end users would know necessarily know if their request failed/succeeded. I feel like in most email systems, emails are sent asynchronously. Given time restrictions, it would like to:
+This email system has its limitations in that end users would know not necessarily know if their request failed/succeeded. I feel like in most email systems, emails are sent asynchronously. Given time restrictions, it would like to:
 
 1. Fix logging in the application, would remove the standard logger with something more verbose
 3. Basic request validation
