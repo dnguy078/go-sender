@@ -48,4 +48,4 @@ This email system has its limitations in that end users would know not necessari
 
 **Additional Notes**
 - Sparkpost does not allow you send from a non whitelisted domain. Their free account only lets you send from a sandbox account setting up to 50 emails. I used all 50 calls.
-- Email providers sometimes have delays in sending emails on free accounts.
+- Email providers sometimes have delays in sending emails on free accounts. test
